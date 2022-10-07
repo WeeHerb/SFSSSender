@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SFSS</string>
+    <string name="btn_connect">Connect</string>
+    <string name="tip_format_error">Format didn\'t matched</string>
 </resources>

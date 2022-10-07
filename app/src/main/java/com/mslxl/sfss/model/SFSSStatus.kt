@@ -1,5 +1,7 @@
 package com.mslxl.sfss
 
+
+
 sealed class SFSSStatus{
     class Ready : SFSSStatus() {
         override fun onExit() {
@@ -11,6 +13,18 @@ sealed class SFSSStatus{
         }
 
     }
+
+    class Working: SFSSStatus(){
+        override fun onExit() {
+
+        }
+
+        override fun onEnter() {
+
+        }
+
+    }
+
     class Disconnect : SFSSStatus() {
         override fun onExit() {
 

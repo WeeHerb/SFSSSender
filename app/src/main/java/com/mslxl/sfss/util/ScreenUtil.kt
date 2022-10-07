@@ -1,4 +1,4 @@
-package com.mslxl.sfss
+package com.mslxl.sfss.util
 
 import android.content.Context
 import android.content.res.Resources

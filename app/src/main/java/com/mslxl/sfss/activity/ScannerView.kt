@@ -1,10 +1,12 @@
-package com.mslxl.sfss
+package com.mslxl.sfss.activity
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import com.google.zxing.ResultPoint
+import com.mslxl.sfss.R
+import com.mslxl.sfss.util.ScreenUtil
 
 
 class ScannerView(context: Context, attrs: AttributeSet?) :

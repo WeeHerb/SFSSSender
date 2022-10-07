@@ -1,75 +1,59 @@
-package com.mslxl.sfss
+package com.mslxl.sfss.activity
 
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Matrix
-import android.graphics.Paint
 import android.graphics.Rect
 import android.hardware.Camera
 import android.net.Uri
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Process
-import android.os.Vibrator
+import android.os.*
 import android.provider.MediaStore
 import android.util.Log
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
-import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.ChecksumException
-import com.google.zxing.DecodeHintType
-import com.google.zxing.FormatException
-import com.google.zxing.NotFoundException
-import com.google.zxing.PlanarYUVLuminanceSource
-import com.google.zxing.RGBLuminanceSource
-import com.google.zxing.Result
-import com.google.zxing.ResultPoint
-import com.google.zxing.ResultPointCallback
+import com.google.zxing.*
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
+import com.mslxl.sfss.util.CameraManager
+import com.mslxl.sfss.R
 import java.io.File
 import java.io.IOException
 import java.net.URI
-import java.util.EnumMap
-import kotlin.concurrent.thread
+import java.util.*
 
 
-class MainActivity : AppCompatActivity(), SurfaceHolder.Callback,
+class ScannerActivity : AppCompatActivity(), SurfaceHolder.Callback,
     CompoundButton.OnCheckedChangeListener {
 
-    val INTENT_EXTRA_RESULT = "result"
-    val FromGalleryRequestCode = 1606
+    companion object{
+        const val BUNDLE_IP_KEY = "ip"
+        const val BUNDLE_PORT_KEY = "port"
 
-    private val VIBRATE_DURATION = 50L
-    private val AUTO_FOCUS_INTERVAL_MS = 2500L
+        private const val VIBRATE_DURATION = 50L
+        private const val AUTO_FOCUS_INTERVAL_MS = 2500L
+    }
+
+
 
     private val cameraManager = CameraManager()
-    protected var scannerView: ScannerView? = null
+    private var scannerView: ScannerView? = null
     private var surfaceHolder: SurfaceHolder? = null
-    protected var flOverlayContainer: FrameLayout? = null
+    private var flOverlayContainer: FrameLayout? = null
     private var vibrator: Vibrator? = null
     private var cameraThread: HandlerThread? = null
     var cameraHandler: Handler? = null
+
+
 
 
     private val DISABLE_CONTINUOUS_AUTOFOCUS =
@@ -78,9 +62,9 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_scanner)
 
 
-        setContentView(R.layout.activity_main)
 
 
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -136,7 +120,8 @@ class MainActivity : AppCompatActivity(), SurfaceHolder.Callback,
         scanResult: Result
     ) {
 //    fun handleResult(
-//        scanResult: Result, thumbnailImage: Bitmap,
+//        scanResult: Result,
+//        thumbnailImage: Bitmap,
 //        thumbnailScaleFactor: Float
 //    ) {
         vibrate()
