@@ -26,6 +26,7 @@ import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
 import com.mslxl.sfss.util.CameraManager
 import com.mslxl.sfss.R
+import com.mslxl.sfss.controller.SenderAutomaton
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -43,8 +44,6 @@ class ScannerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         private const val AUTO_FOCUS_INTERVAL_MS = 2500L
     }
 
-
-
     private val cameraManager = CameraManager()
     private var scannerView: ScannerView? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -52,20 +51,25 @@ class ScannerActivity : AppCompatActivity(), SurfaceHolder.Callback,
     private var vibrator: Vibrator? = null
     private var cameraThread: HandlerThread? = null
     var cameraHandler: Handler? = null
+    private var lastScanResult: String = ""
 
-
-
+    private lateinit var sender: SenderAutomaton
 
     private val DISABLE_CONTINUOUS_AUTOFOCUS =
         Build.MODEL == "GT-I9100" || Build.MODEL == "SGH-T989" || Build.MODEL == "SGH-T989D" || Build.MODEL == "SAMSUNG-SGH-I727" || Build.MODEL == "GT-I9300" || Build.MODEL == "GT-N7000" // Galaxy Note
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scanner)
 
-
-
+        val ip = intent.getStringExtra(BUNDLE_IP_KEY)!!
+        val port = intent.getIntExtra(BUNDLE_PORT_KEY, -1)
+        sender = SenderAutomaton(ip, port){
+            info->
+            runOnUiThread {
+                title = "${sender.statusName}: $info"
+            }
+        }
 
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
@@ -73,6 +77,7 @@ class ScannerActivity : AppCompatActivity(), SurfaceHolder.Callback,
         scannerView = findViewById(R.id.scan_activity_mask)
         (findViewById<View>(R.id.cbx_torch) as CheckBox).setOnCheckedChangeListener(this)
 
+        sender.start()
     }
 
     override fun onResume() {
@@ -124,7 +129,13 @@ class ScannerActivity : AppCompatActivity(), SurfaceHolder.Callback,
 //        thumbnailImage: Bitmap,
 //        thumbnailScaleFactor: Float
 //    ) {
-        vibrate()
+
+        if(scanResult.text != lastScanResult){
+            vibrate()
+            Toast.makeText(this, scanResult.text, Toast.LENGTH_SHORT).show()
+            sender.sendQR(scanResult.text)
+            lastScanResult = scanResult.text
+        }
 //        var thumbnailImage = thumbnailImage
         // superimpose dots to highlight the key features of the qr code
 //        val points: Array<ResultPoint> = scanResult.getResultPoints()
@@ -145,7 +156,7 @@ class ScannerActivity : AppCompatActivity(), SurfaceHolder.Callback,
 //        )
 //        scannerView!!.drawResultBitmap(thumbnailImage)
 
-        Toast.makeText(this, scanResult.text, Toast.LENGTH_SHORT).show()
+
     }
 
     private fun vibrate() {
